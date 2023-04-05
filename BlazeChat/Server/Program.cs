@@ -1,6 +1,8 @@
 using BlazeChat.Server;
+using BlazeChat.Server.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,15 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = TokenService.GetTokenValidationParameters(builder.Configuration);
 });
 
+builder.Services.AddDbContext<ChatContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ChatConnectionString"));
+});
+
 builder.Services.AddTransient<TokenService>();
+
+builder.Services.AddSignalR();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
@@ -43,6 +53,7 @@ app.UseRouting();
 
 app.MapRazorPages();
 app.MapControllers();
+app.MapHub<BlazeChatHub>("/hubs/blazechat");
 app.MapFallbackToFile("index.html");
 
 app.Run();
