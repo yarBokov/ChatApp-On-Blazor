@@ -1,4 +1,79 @@
 ﻿@page "/"
 
+@inject HttpClient HttpClient
+
 <PageTitle>Blaze Chat</PageTitle>
 
+<div class="container">
+    <div class="row">
+        <div class="col"></div>
+        <div class="col">
+            <h2>Blaze Chat - Вход</h2>
+            <hr />
+            <EditForm Model="LoginModel" OnInvalidSubmit="LoginAsync">
+                <DataAnnotationsValidator />
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <p class="text-danger">@errorMessage</p>
+                }
+                <div class="mb-3">
+                    <InputText @bind-Value="LoginModel.Username" DisplayName="Имя пользователя" class="form-control"/>
+                    <ValidationMessage For="() => LoginModel.Username" />
+                </div>
+
+                <div class="mb-3">
+                    <InputText type="password" @bind-Value="LoginModel.Password" DisplayName="Пароль" class="form-control"/>
+                    <ValidationMessage For="() => LoginModel.Password" />
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-success" @(_isBusy ? "Вход запрещён" : "")>Вход</button>
+                    @*<button type="submit" class="btn btn-outline-primary">Регистрация</button>*@
+                    <NavLink href="register" class="btn btn-outline-primary">Регистрация</NavLink>
+                </div>
+            </EditForm>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+
+@code{
+    private LoginDTO LoginModel { get; set; } = new();
+    private bool _isBusy = false;
+    private string? errorMessage = null;
+    private async Task LoginAsync()
+    {
+        try
+        {
+            _isBusy = true;
+            var response = await HttpClient.PostAsJsonAsync<LoginDTO>("api/account/login", LoginModel);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var authResult = JsonSerializer.Deserialize<AuthResponseDTO>(content);
+            }
+            else
+            {
+                string errorContent = null;
+                try
+                {
+                    errorContent = await response.Content.ReadAsStringAsync();
+                }
+                catch
+                {                    
+                }
+                if (string.IsNullOrWhiteSpace(errorContent))
+                {
+                    errorContent = $"Error {response.StatusCode} - ${response.ReasonPhrase}";
+                }
+                _isBusy = false;
+                errorMessage = errorContent;
+            }
+        }
+        catch(Exception e)
+        {
+            errorMessage = e.Message;
+            _isBusy = false;
+        }
+    }
+}
