@@ -1,0 +1,91 @@
+﻿@page "/register"
+
+@inject HttpClient HttpClient
+
+<PageTitle>Регистрация - Blaze Chat</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col"></div>
+        <div class="col">
+            <h2>Blaze Chat - Вход</h2>
+            <hr />
+            <EditForm Model="RegisterModel" OnInvalidSubmit="RegisterAsync">
+                <DataAnnotationsValidator />
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                        <p class="text-danger">@errorMessage</p>
+                }
+                <div class="mb-3">
+                    <label class="control-label">Имя</label>
+                    <InputText @bind-Value="RegisterModel.Name" DisplayName="Имя" class="form-control" placeholder="Введите ваше имя"/>
+                    <ValidationMessage For="() => RegisterModel.Name" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="control-label">Имя пользователя</label>
+                    <InputText @bind-Value="RegisterModel.Username" DisplayName="Имя пользователя" class="form-control" placeholder="Введите имя пользователя"/>
+                    <ValidationMessage For="() => RegisterModel.Username" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="control-label">Пароль</label>
+                    <InputText type="password" @bind-Value="RegisterModel.Password" DisplayName="Пароль" class="form-control" placeholder="Введите пароль"/>
+                    <ValidationMessage For="() => RegisterModel.Password" />
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-success float-start" @(_isBusy ? "Вход запрещён" : "")>Регистрация</button>
+                    @*<button type="submit" class="btn btn-outline-primary">Регистрация</button>*@
+                    <NavLink href="/" Match="NavLinkMatch.All" class="btn btn-outline-primary float-end">Вход</NavLink>
+                    <div class="clearfix"></div>
+                </div>
+            </EditForm>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+
+@code {
+    private RegisterDTO RegisterModel { get; set; } = new();
+    private bool _isBusy = false;
+    private string? errorMessage = null;
+    private async Task RegisterAsync()
+    {
+        try
+        {
+            _isBusy = true;
+            var response = await HttpClient.PostAsJsonAsync<RegisterDTO>("api/account/login", RegisterModel);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var authResult = JsonSerializer.Deserialize<AuthResponseDTO>(content, new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
+            }
+            else
+            {
+                string errorContent = null;
+                try
+                {
+                    errorContent = await response.Content.ReadAsStringAsync();
+                }
+                catch
+                {
+                }
+                if (string.IsNullOrWhiteSpace(errorContent))
+                {
+                    errorContent = $"Error {response.StatusCode} - ${response.ReasonPhrase}";
+                }
+                _isBusy = false;
+                errorMessage = errorContent;
+            }
+        }
+        catch (Exception e)
+        {
+            errorMessage = e.Message;
+            _isBusy = false;
+        }
+    }
+}
