@@ -57,6 +57,9 @@
 </div>
 
 @code{
+    [CascadingParameter(Name = "AuthenticationState")]
+    public AuthenticationState AuthenticationState { get; set; }
+
     private LoginDTO LoginModel { get; set; } = new();
     private bool _isBusy = false;
     private string? errorMessage = null;
@@ -73,6 +76,7 @@
                 {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
+                AuthenticationState.LoadState(authResult);
                 NavManager.NavigateTo("/chat");
             }
             else
