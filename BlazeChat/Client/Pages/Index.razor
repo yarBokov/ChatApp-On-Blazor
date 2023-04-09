@@ -1,6 +1,6 @@
 ﻿@page "/"
-
 @inject HttpClient HttpClient
+@inject NavigationManager NavManager
 
 <PageTitle>Blaze Chat</PageTitle>
 
@@ -20,62 +20,39 @@
                                 <p class="text-danger">@errorMessage</p>
                         }
                         <div class="mb-3">
-                            <label class="control-label">Имя пользователя</label>
+                            <label class="form-label">Имя пользователя</label>
                             <InputText @bind-Value="LoginModel.Username" DisplayName="Имя пользователя" class="form-control" placeholder="Введите имя пользователя"/>
                             <ValidationMessage For="() => LoginModel.Username" />
                         </div>
 
                         <div class="mb-3">
-                            <label class="control-label">Пароль</label>
+                            <label class="form-label">Пароль</label>
                             <InputText type="password" @bind-Value="LoginModel.Password" DisplayName="Пароль" class="form-control" placeholder="Введите пароль"/>
                             <ValidationMessage For="() => LoginModel.Password" />
                         </div>
                   </div>
                   <div class="card-footer">
                       <div class="mb-3">
-                        <button type="submit" class="btn btn-success float-start" @(_isBusy ? "Вход запрещён" : "")>Вход</button>
-                        @*<button type="submit" class="btn btn-outline-primary">Регистрация</button>*@
-                        <NavLink href="register" class="btn btn-outline-primary float-end">Регистрация</NavLink>
-                        <div class="clearfix"></div>
+
+                          @if(_isBusy)
+                            {
+                                <button class="btn btn-success" type="button" disabled>
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Загрузка...
+                                </button>
+                            }
+                          else
+                            {
+                                <button type="submit" class="btn btn-success float-start">Вход</button>
+                            }
+                            <NavLink href="register" class="btn btn-outline-primary float-end">Регистрация</NavLink>
+                            <div class="clearfix"></div>
                         </div>
                   </div>
             </div>
             </EditForm>
         </div>
         <div class="col-2"></div>
-    </div>
-    <div class="row">
-        <div class="col"></div>
-        <div class="col">
-            <h2>Blaze Chat - Вход</h2>
-            <hr />
-            <EditForm Model="LoginModel" OnInvalidSubmit="LoginAsync">
-                <DataAnnotationsValidator />
-                @if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    <p class="text-danger">@errorMessage</p>
-                }
-                <div class="mb-3">
-                    <label class="control-label">Имя пользователя</label>
-                    <InputText @bind-Value="LoginModel.Username" DisplayName="Имя пользователя" class="form-control" placeholder="Введите имя пользователя"/>
-                    <ValidationMessage For="() => LoginModel.Username" />
-                </div>
-
-                <div class="mb-3">
-                    <label class="control-label">Пароль</label>
-                    <InputText type="password" @bind-Value="LoginModel.Password" DisplayName="Пароль" class="form-control" placeholder="Введите пароль"/>
-                    <ValidationMessage For="() => LoginModel.Password" />
-                </div>
-
-                <div class="mb-3">
-                    <button type="submit" class="btn btn-success float-start" @(_isBusy ? "Вход запрещён" : "")>Вход</button>
-                    @*<button type="submit" class="btn btn-outline-primary">Регистрация</button>*@
-                    <NavLink href="register" class="btn btn-outline-primary float-end">Регистрация</NavLink>
-                    <div class="clearfix"></div>
-                </div>
-            </EditForm>
-        </div>
-        <div class="col"></div>
     </div>
 </div>
 
@@ -96,6 +73,7 @@
                 {
                         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
+                NavManager.NavigateTo("/chat");
             }
             else
             {
