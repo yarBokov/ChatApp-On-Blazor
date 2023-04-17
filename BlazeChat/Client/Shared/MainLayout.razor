@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
 
 <CascadingValue Value="AuthenticationState" Name="AuthenticationState">
     <div class="container-fluid">
@@ -8,4 +9,16 @@
 
 @code{
     public AuthenticationState AuthenticationState { get; set; } = new();
+
+    private const string AuthStoreKey = "authkey";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authStateJson = await JSRuntime.InvokeAsync<string>("getFromStorage", AuthStoreKey);
+        if (!string.IsNullOrWhiteSpace(authStateJson))
+        {
+            var authState = JsonSerializer.Deserialize<AuthResponseDTO>(authStateJson);
+            AuthenticationState.LoadState(authState);
+        }
+    }
 }

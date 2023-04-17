@@ -1,6 +1,34 @@
 ﻿@page "/chat"
 
 @inject NavigationManager NavManager
+
+<div class="container">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <div class="row">
+                <div class="col">
+                    <h2>BlazeChat</h2>
+                </div>
+                <div class="col float-end">
+                    <button type="button" class="btn btn-sm btn-warning float-end">Выйти</button>
+                    <label class="float-end">Добро пожаловать, @AuthenticationState.Name</label>
+                </div>
+            </div>
+        </div>
+        <div class="card-body" messages-window>
+            <div class="row">
+                <div class="col-3">
+                    <span>Пользователи</span>
+                </div>
+                <div class="col-9">
+                    <span>Сообщения</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <h3>Добро пожаловать, @AuthenticationState.Name !</h3>
 
 @code {
