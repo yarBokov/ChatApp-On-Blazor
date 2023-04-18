@@ -1,5 +1,5 @@
 ﻿window.getFromStorage = (key) => {
-    localStorage.getItem(key);
+    return localStorage.getItem(key);
 }
 
 window.setToStorage = (key, value) => {

@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
 @inject NavigationManager NavManager
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Blaze Chat</PageTitle>
 
@@ -72,11 +73,11 @@
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var authResult = JsonSerializer.Deserialize<AuthResponseDTO>(content, new JsonSerializerOptions
-                {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                });
+                var authResult = JsonConverter.Deserialize<AuthResponseDTO>(content);
                 AuthenticationState.LoadState(authResult);
+
+                var serialized = JsonConverter.Serialize(authResult);
+                await JSRuntime.InvokeVoidAsync("window.setToStorage", AuthenticationState.AuthStoreKey, serialized);
                 NavManager.NavigateTo("/chat");
             }
             else

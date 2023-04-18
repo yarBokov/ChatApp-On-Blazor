@@ -10,8 +10,8 @@
                     <h2>BlazeChat</h2>
                 </div>
                 <div class="col float-end">
-                    <button type="button" class="btn btn-sm btn-warning float-end">Выйти</button>
-                    <label class="float-end">Добро пожаловать, @AuthenticationState.Name</label>
+                    <button type="button" class="btn btn-warning float-end">Выйти</button>
+                    <label class="float-end me-2 mt-2">Добро пожаловать, @AuthenticationState.Name</label>
                 </div>
             </div>
         </div>
@@ -28,8 +28,6 @@
     </div>
 </div>
 
-
-<h3>Добро пожаловать, @AuthenticationState.Name !</h3>
 
 @code {
     [CascadingParameter(Name = "AuthenticationState")]
