@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Components\ChatMessagesComponent.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Pages\Chat.razor.css" />
   </ItemGroup>
 
@@ -19,10 +23,23 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.11" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.16" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Shared\BlazeChat.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Components\ChatMessagesComponent.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Components\ChatMessagesComponent.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Components\ChatMessagesComponent.razor" />
   </ItemGroup>
 
 </Project>

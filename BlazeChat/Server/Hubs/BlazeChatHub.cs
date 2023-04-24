@@ -1,22 +1,29 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using BlazeChat.Shared.HubInterfaces;
+using Microsoft.AspNetCore.SignalR;
 
 namespace BlazeChat.Server.Hubs
 {
-    public interface IBlazeChatHubClient
+    public class BlazeChatHub: Hub<IBlazeChatHubClient> , IBlazeChatHubServer 
     {
-        void ReceiveMessage(string message);
-    }
-
-    public class BlazeChatHub: Hub<IBlazeChatHubClient> 
-    {
+        public static ICollection<string> connectedUsers = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         public BlazeChatHub()
         {
 
         }
-
+        
         public override Task OnConnectedAsync()
         {
             return base.OnConnectedAsync();
+        }
+
+        public async Task ConnectUser(string username)
+        {
+            if (!connectedUsers.Contains(username))
+            {
+                connectedUsers.Add(username);
+
+                await Clients.Others.UserConnected(username);
+            }
         }
     }
 }

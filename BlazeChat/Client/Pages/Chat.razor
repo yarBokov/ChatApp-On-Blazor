@@ -1,5 +1,6 @@
 ﻿@page "/chat"
 
+@implements IAsyncDisposable
 @inject NavigationManager NavManager
 
 <div class="container">
@@ -18,10 +19,10 @@
         <div class="card-body" messages-window>
             <div class="row">
                 <div class="col-3">
-                    <span>Пользователи</span>
+                    <UsersListComponent Users="Users" />
                 </div>
                 <div class="col-9">
-                    <span>Сообщения</span>
+                    <ChatMessagesComponent />
                 </div>
             </div>
         </div>
@@ -33,12 +34,38 @@
     [CascadingParameter(Name = "AuthenticationState")]
     public AuthenticationState AuthenticationState { get; set; }
 
-    protected override void OnInitialized()
+    private HubConnection? hubConnection;
+
+    public ICollection<string> Users { get; set; } = new HashSet<string>();
+
+    protected override async void OnInitialized()
     {
         base.OnInitialized();
         if (!AuthenticationState.IsAuthenticatied)
         {
             NavManager.NavigateTo("/");
         }
+        else
+        {
+            hubConnection = new HubConnectionBuilder()
+                                .WithUrl(NavManager.ToAbsoluteUri("/hubs/blazechat"))
+                                .Build();
+
+            hubConnection.On<string>(nameof(IBlazeChatHubClient.UserConnected), (username) =>
+            {
+                Users.Add(username);
+                StateHasChanged();
+            });
+
+            await hubConnection.StartAsync();
+            await hubConnection.SendAsync(nameof(IBlazeChatHubServer.ConnectUser), AuthenticationState.Name);
+
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+            await hubConnection.DisposeAsync();
     }
 }
